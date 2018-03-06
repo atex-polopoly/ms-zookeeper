@@ -25,4 +25,8 @@ suites:
     attributes:
       zookeeper:
         version: '3.4.11'
+        number_of_zookeepers: 3
+        server_id: 3
       ftp_active_mode: false
+      environment_type: prod
+      customer: atx

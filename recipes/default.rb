@@ -6,3 +6,7 @@
 
 include_recipe 'ms-zookeeper::install'
 include_recipe 'ms-zookeeper::configure'
+
+service 'zookeeper' do
+  action [:enable, :start]
+end
