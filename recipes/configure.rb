@@ -13,7 +13,7 @@ ruby_block 'assign zookeeper domain' do
   only_if { node['zookeeper']['server_id'].nil? }
 end
 
-template '/srv/zookeeper/conf/zoo.cnf' do
+template '/srv/zookeeper/conf/zoo.cfg' do
   source 'zoo.cnf.erb'
   variables({
     environment: node['environment_type'],
@@ -25,7 +25,7 @@ template '/srv/zookeeper/conf/zoo.cnf' do
   mode '0644'
 end
 
-directory '/mnt/data/zookeeper/' do
+directory '/mnt/data/zookeeper/data' do
   owner 'zookeeper'
   group 'zookeeper'
   mode '0755'
@@ -41,7 +41,7 @@ link '/srv/zookeeper/data' do
 end
 
 file '/srv/zookeeper/data/myid' do
-  content  lazy { node['zookeeper']['server_id'] }
+  content  lazy { node['zookeeper']['server_id'].to_s }
   owner 'zookeeper'
   group 'zookeeper'
   mode '0644'
