@@ -7,8 +7,10 @@
 
 ruby_block 'assign zookeeper domain' do
   block do
-    puts "BLAAAAAAAAAAAAAA", "AAAAAAAAA"
-    node.normal['zookeeper']['server_id'] = assign_to_zookeeper_domain(node['customer'], node['environment_type'], node['zookeeper']['number_of_zookeepers'], node['ipaddress'])
+    node.normal['zookeeper']['server_id'] = assign_to_zookeeper_domain(node['customer'],
+                                                                       node['environment_type'],
+                                                                       node['zookeeper']['number_of_zookeepers'],
+                                                                       node['ipaddress'])
   end
   only_if { node['zookeeper']['server_id'].nil? }
 end
@@ -19,6 +21,16 @@ template '/srv/zookeeper/conf/zoo.cfg' do
     environment: node['environment_type'],
     group: node['customer'],
     number_of_zookeepers: node['zookeeper']['number_of_zookeepers']
+    })
+  owner 'zookeeper'
+  group 'zookeeper'
+  mode '0644'
+end
+
+template '/srv/zookeeper/conf/java.env' do
+  source 'java.env.erb'
+  variables({
+    xmx: node['zookeeper']['xmx']
     })
   owner 'zookeeper'
   group 'zookeeper'
@@ -37,7 +49,6 @@ link '/srv/zookeeper/data' do
   to '/mnt/data/zookeeper/data'
   owner 'zookeeper'
   group 'zookeeper'
-  mode '0755'
 end
 
 file '/srv/zookeeper/data/myid' do

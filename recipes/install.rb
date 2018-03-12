@@ -16,7 +16,7 @@ end
 remote_file "#{Chef::Config[:file_cache_path]}/zookeeper.tar.gz" do
   source "ftp://10.10.10.10/mirror/zookeeper/zookeeper-#{node['zookeeper']['version']}.tar.gz"
   ftp_active_mode node['ftp_active_mode']
-  not_if { 	File.exists?('/srv/zookeeper') }
+  not_if { 	File.exists?('/srv/zookeeper') && Dir.entries('/srv/zookeeper').select {|f| !File.directory? f}.length > 0}
 end
 
 directory '/srv/zookeeper' do
@@ -27,13 +27,14 @@ end
 execute "install zookeeper" do
   cwd Chef::Config[:file_cache_path]
   command "tar -xf #{Chef::Config[:file_cache_path]}/zookeeper.tar.gz -C /srv/zookeeper --strip-components 1"
-  not_if { Dir.entries('/srv/zookeeper').select {|f| !File.directory? f}.length == 0 }
+  not_if { Dir.entries('/srv/zookeeper').select {|f| !File.directory? f}.length > 0 }
   only_if { File.exists?("#{Chef::Config[:file_cache_path]}/zookeeper.tar.gz") }
+  notifies :run, 'execute[chown zookeeper]', :immediately
 end
 
 execute 'chown zookeeper' do
   command 'chown zookeeper:zookeeper -R /srv/zookeeper'
-  not_if { File.stat('/srv/zookeeper').uid == `id -u zookeeper` &&  File.stat('/srv/zookeeper').gid == `id -g zookeeper` }
+  action :nothing
 end
 
 directory '/srv/zookeeper/conf' do
