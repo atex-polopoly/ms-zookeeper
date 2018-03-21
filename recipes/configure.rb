@@ -11,6 +11,9 @@ ruby_block 'assign zookeeper domain' do
                                                                        node['environment_type'],
                                                                        node['zookeeper']['number_of_zookeepers'],
                                                                        node['ipaddress'])
+    node.normal['zookeeper']['domain_name'] = get_zookeeper_domain_name(node['customer'],
+                                                                        node['environment_type'],
+                                                                        node['zookeeper']['domain_name'])
   end
   only_if { node['zookeeper']['server_id'].nil? }
 end
