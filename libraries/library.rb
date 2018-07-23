@@ -1,5 +1,11 @@
 require 'resolv'
 
+def dig(hash, *path)
+  path.inject hash do |location, key|
+    location.respond_to?(:keys) ? location[key] : nil
+  end
+end
+
 def assign_to_zookeeper_domain(group, environment, number_of_zookeepers, ip)
 
   # Sleep a random amount of time to reduce risk of collisions when
@@ -18,7 +24,7 @@ end
 def get_free_server_id(chef_environment, number_of_zookeepers)
   used_ids = []
   search(:node, "chef_environment:#{chef_environment} AND roles:zoo").each do |matching_node|
-    if !matching_node['zookeeper']['server_id'].nil?
+    unless dig(matching_node, 'zookeeper', 'server_id').nil?
       used_ids << matching_node['zookeeper']['server_id']
     end
   end
